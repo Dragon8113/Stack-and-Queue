@@ -14,10 +14,11 @@ typedef int ElemType;
 typedef struct StackNode{   //节点创建
     ElemType data;
     struct StackNode *next;
-} StackNode, *LinkStackPtr;
+} StackNode, *StackPtr;
 
+//栈：LIFO(后进先出)
 typedef struct{     //栈的创建
-    LinkStackPtr top;   //top指针
+    StackPtr top;   //top指针
     int count;      //栈元素计数器
 } LinkStack;
 
@@ -36,8 +37,8 @@ Status StackEmpty(LinkStack s){     //判断链表是否为空
 }
 
 Status Push(LinkStack *s, ElemType e){  //进栈：使用单链表的头插法
-    LinkStackPtr temp;
-    temp = (LinkStackPtr)malloc(sizeof(StackNode));
+    StackPtr temp;
+    temp = (StackPtr)malloc(sizeof(StackNode));
     if(temp == NULL){
         exit(0);
     }
@@ -51,16 +52,19 @@ Status Push(LinkStack *s, ElemType e){  //进栈：使用单链表的头插法
 
 Status Pop(LinkStack *s, ElemType *e){      //退栈
     if(!StackEmpty(*s)){
-        *e = s->top->data;
+        StackPtr temp;
+        temp = s->top;
+        *e = temp->data;
         s->top = s->top->next;
         s->count--;
+        free(temp);
         return OK;
     }
     return ERROR;
 }
 
-Status ClearStack(LinkStack *s){    //清空栈
-    LinkStackPtr temp;
+Status DestroyStack(LinkStack *s){    //销毁栈（因为无头节点，所以清空栈与销毁栈结果并无区别
+    StackPtr temp;
     while(s->top != NULL){
         temp = s->top;
         s->top = s->top->next;
@@ -88,13 +92,14 @@ int main(void){     //栈的测试
 
     printf("\n\n栈的长度: %d", s.count);
 
-    printf("\n\n清空栈......");
-    ClearStack(&s);
+    /* printf("\n\n销毁栈......");
+    DestroyStack(&s); */
 
     printf("\n\n元素出栈:");
-    if(StackEmpty(s)){
-        printf(" 链表为空");
+    if(s.top == NULL){
+        printf(" 栈已被销毁");
     }
+    
     while (!StackEmpty(s))  //链表为空后，退出循环
     {
         Pop(&s, &e);
